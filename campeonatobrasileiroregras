@@ -1,0 +1,37 @@
+Campeonato Brasileiro Digital 
+
+- Pontos Cordos 
+	- Não existem grupos 
+	- não existe mata a mata (quartas de finals , semi final)
+- 20 Times 
+- Classificação 
+- Jogam todos entre todos 
+- Ganha o que fizer mais ponto 
+- Cada vitória vale 3 pontos 
+- Cada empate vale 1 ponto 
+- Cada derrota não pontua 
+
+Times 
+- Cruzeiro 
+- Atletico 
+- Botafogo 
+- America 
+--------------
+
+Time : Nome , Sigla, Estado 
+Jogo: Time1 , Time2, GolsTime1, GolsTime2
+Classificação : Cálculo 
+
+-------
+API / Ações 
+
+- Cadastrar time
+- Listar times
+- Claucular a classificação 
+- Cadastrar jogos 
+- Colocar resultados de jogos 
+
+
+
+ 
+
