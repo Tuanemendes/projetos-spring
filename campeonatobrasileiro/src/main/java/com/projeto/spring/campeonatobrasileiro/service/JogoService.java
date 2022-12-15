@@ -3,8 +3,10 @@ package com.projeto.spring.campeonatobrasileiro.service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
@@ -12,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.projeto.spring.campeonatobrasileiro.dto.ClassificacaoDto;
+import com.projeto.spring.campeonatobrasileiro.dto.ClassificacaoTimeDto;
 import com.projeto.spring.campeonatobrasileiro.dto.JogoDto;
 import com.projeto.spring.campeonatobrasileiro.dto.JogoFinalizadoDto;
 import com.projeto.spring.campeonatobrasileiro.entity.Jogo;
@@ -134,25 +137,61 @@ public class JogoService {
        
     }
 
-     public ClassificacaoDto buscarClaficacao() {
+     public ClassificacaoDto buscarClassificacao() {
         // quantidade de vitorias *3  +quantidade de Empates 
         ClassificacaoDto classificacaoDto = new ClassificacaoDto();
         final List<Time> times = timeService.findAll();
         times.forEach(time->{
-            final List<Jogo> jogosMandate = jogoRepository.findByTime1AndEcerrado(time,true);
-            final List<Jogo> jogosVisitante = jogoRepository.findByTime2AndEcerrado(time,true);
-            Integer vitorias = 0; 
-            Integer
+            final List<Jogo> jogosMandate = jogoRepository.findByTime1AndEncerrado(time,true);
+            final List<Jogo> jogosVisitante = jogoRepository.findByTime2AndEncerrado(time,true);
+            AtomicReference<Integer> vitorias = new AtomicReference<>(0); 
+            AtomicReference<Integer> empates =  new AtomicReference<>(0);
+            AtomicReference<Integer> derrotas = new AtomicReference<>(0);
+            AtomicReference<Integer> golsSofridos = new AtomicReference<>(0);
+            AtomicReference<Integer> golsMarcados = new AtomicReference<>(0);
 
             jogosMandate .forEach(jogo -> {
-
+                if(jogo.getGolsTime1()> jogo.getGolsTime2()){
+                    vitorias.getAndSet(vitorias.get() +1);
+                }else if(jogo.getGolsTime1() < jogo.getGolsTime2()){
+                    derrotas.getAndSet(derrotas.get() +1);
+                }else{
+                    empates.getAndSet(derrotas.get() +1);
+                }
+                golsMarcados.set(golsMarcados.get() + jogo.getGolsTime1());
+                golsSofridos.set(golsSofridos.get() + jogo.getGolsTime2());
             });
             jogosVisitante.forEach(jogo->{
-
+                if(jogo.getGolsTime1()> jogo.getGolsTime2()){
+                    vitorias.getAndSet(vitorias.get() +1);
+                }else if(jogo.getGolsTime1() < jogo.getGolsTime2()){
+                    derrotas.getAndSet(derrotas.get() +1);
+                }else{
+                    empates.getAndSet(derrotas.get() +1);
+                }
+                golsMarcados.set(golsMarcados.get() + jogo.getGolsTime1());
+                golsSofridos.set(golsSofridos.get() + jogo.getGolsTime2());
             });
 
-        });
+            ClassificacaoTimeDto classificacaoTimeDto = new ClassificacaoTimeDto();
+            classificacaoTimeDto.setIdTime(time.getIdTime());
+            classificacaoTimeDto.setTime(time.getNome());
+            classificacaoTimeDto.setPontos((vitorias.get()*3) + empates.get());
+            classificacaoTimeDto.setDerrotas(derrotas.get());
+            classificacaoTimeDto.setEmpates(empates.get());
+            classificacaoTimeDto.setVitorias(vitorias.get());
+            classificacaoTimeDto.setGolsMarcados(golsMarcados.get());
+            classificacaoTimeDto.setGolsSofridos(golsSofridos.get());
+            classificacaoTimeDto.setJogos(derrotas.get() + empates.get() + vitorias.get());
+            
+            classificacaoDto.getTimes().add(classificacaoTimeDto);
 
+        });
+        Collections.sort(classificacaoDto.getTimes(),Collections.reverseOrder());
+        int posicao = 1;
+        for(ClassificacaoTimeDto time : classificacaoDto.getTimes()){
+            time.setPosicao(posicao++);
+        }
         return classificacaoDto;
     }
  

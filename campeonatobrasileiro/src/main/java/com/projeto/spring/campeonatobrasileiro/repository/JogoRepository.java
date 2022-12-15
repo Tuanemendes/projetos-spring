@@ -12,8 +12,8 @@ import com.projeto.spring.campeonatobrasileiro.entity.Time;
 public interface JogoRepository extends JpaRepository<Jogo,Long>{
 
     // select * from  jogo where time1 = :time1 and encerrado = :encerrado
-    List<Jogo> findByTime1AndEcerrado(Time time1, Boolean encerrado);
+    List<Jogo> findByTime1AndEncerrado(Time time1, Boolean encerrado);
 
-    List<Jogo> findByTime2AndEcerrado(Time time2, Boolean encerrado);
+    List<Jogo> findByTime2AndEncerrado(Time time2, Boolean encerrado);
     
 }
